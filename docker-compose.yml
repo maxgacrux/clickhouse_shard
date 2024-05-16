@@ -1,0 +1,67 @@
+version: '3'
+services:
+  zookeeper:
+    image: bitnami/zookeeper:3.7.0
+    container_name: zookeeper
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+      - "2888:2888" 
+      - "3888:3888"
+    environment:
+      - ZOO_SERVER_ID=1
+      - ZOO_SERVERS=0.0.0.0:2888:3888
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_AUTOPURGE_INTERVAL=1
+
+  clickhouse-1:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-1
+    hostname: clickhouse-1
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+    volumes:
+      - type: volume
+        source: clickhouse-1-data
+        target: /var/lib/clickhouse
+      - type: volume
+        source: clickhouse-1-logs
+        target: /var/log/clickhouse-server
+      - ./config.xml:/etc/clickhouse-server/config.d/remote_servers.xml
+    environment:
+      CLICKHOUSE_DB: test
+      CLICKHOUSE_USER: test
+      CLICKHOUSE_PASSWORD: test
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    depends_on:
+      - zookeeper
+
+  clickhouse-2:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-2
+    hostname: clickhouse-2
+    ports:
+      - "9001:9000"
+      - "8124:8123"
+    volumes:
+      - type: volume
+        source: clickhouse-2-data
+        target: /var/lib/clickhouse
+      - type: volume
+        source: clickhouse-2-logs
+        target: /var/log/clickhouse-server
+      - ./config.xml:/etc/clickhouse-server/config.d/remote_servers.xml
+    environment:
+      CLICKHOUSE_DB: test
+      CLICKHOUSE_USER: test
+      CLICKHOUSE_PASSWORD: test
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    depends_on:
+      - zookeeper
+
+volumes:
+  clickhouse-1-data:
+  clickhouse-1-logs:
+  clickhouse-2-data:
+  clickhouse-2-logs:
