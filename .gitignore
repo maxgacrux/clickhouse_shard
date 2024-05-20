@@ -208,3 +208,5 @@ $RECYCLE.BIN/
 
 ## Customized
 data/*
+clickhouse1/
+clickhouse2/
